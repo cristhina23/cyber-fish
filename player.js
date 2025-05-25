@@ -18,29 +18,37 @@ class Player {
     this.minEnergy = this.energy * 0.5;
     this.charging;
     this.barSize;
+    this.image = document.getElementById('player');
   }
 
   draw() {
-  
-  this.game.ctx.strokeRect(this.x, this.y, this.width, this.height);
+  this.game.ctx.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height);
   this.game.ctx.beginPath();
   this.game.ctx.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2);
   this.game.ctx.strokeStyle = 'red';
-  this.game.ctx.stroke();
+  
 
   }
   update() {
     this.handleEnergy();
     this.y += this.speedY;
+    if (this.isTouchingTop()) {
+      this.y = 0;
+      this.speedY = 0;
+    }
     this.collisionY = this.y + this.height * 0.5;
     this.collisionX = this.x + this.width * 0.5;
-     if (!this.isTouchingBottom()) {
+     if (!this.isTouchingBottom() && !this.charging) {
       this.speedY += this.game.gravity;
+    } else {
+      this.speedY = 0;
     }
 
     if (this.isTouchingBottom()) {
       this.y = this.game.height - this.height;
-      
+      this.game.gameOver = true;
+      this.collided = true;
+      this.stopCharge();
     }
   }
   resize() {

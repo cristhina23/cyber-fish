@@ -23,6 +23,7 @@ class Game {
     this.eventInterval = 100;
     this.eventUpdate = false;
     this.touchStartX;
+    this.swipeDistance = 50;
 
     this.resize(window.innerWidth, window.innerHeight);
 
@@ -173,5 +174,22 @@ window.addEventListener("load", () => {
   }
 
   requestAnimationFrame(animate);
+
+  document.getElementById("restart").addEventListener("click", () => {
+    location.reload(); // Reinicia el juego
+  });
+
+  document.getElementById("fullScreen").addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  document.getElementById("debug").addEventListener("click", () => {
+    game.player.collided = false; 
+    console.log("Modo Debug activado");
+  });
 
 })
