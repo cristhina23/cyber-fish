@@ -27,6 +27,25 @@ class Game {
 
     this.resize(window.innerWidth, window.innerHeight);
 
+      // Activar pantalla completa automáticamente en móviles
+  if (window.innerWidth < 768) {
+    const enableFullscreen = () => {
+      const el = document.documentElement;
+      if (el.requestFullscreen) {
+        el.requestFullscreen();
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen();
+      }
+      document.removeEventListener('touchstart', enableFullscreen);
+    };
+
+    // Espera al primer toque para pedir pantalla completa
+    document.addEventListener('touchstart', enableFullscreen);
+  }
+
+
     window.addEventListener('resize', e => {
       this.resize(e.currentTarget.innerWidth, e.currentTarget.innerHeight);
     })
@@ -53,6 +72,9 @@ class Game {
         this.player.startCharge();
       }
     });
+    window.addEventListener('keyup', e => {
+      this.player.wingsUp();
+    })
   }
   resize(width, height) {
     this.canvas.width = width;
@@ -164,6 +186,23 @@ window.addEventListener("load", () => {
   const game = new Game(canvas, ctx);
 
   let lastTime = 0;
+
+  if (window.innerWidth < 768) {
+  const enableFullscreen = () => {
+    const el = document.documentElement;
+    if (el.requestFullscreen) {
+      el.requestFullscreen();
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    } else if (el.msRequestFullscreen) {
+      el.msRequestFullscreen();
+    }
+    document.removeEventListener('touchstart', enableFullscreen);
+  };
+
+  document.addEventListener('touchstart', enableFullscreen);
+}
+
 
   function animate(timeStamp) {
     const deltaTime = timeStamp - lastTime;
