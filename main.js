@@ -24,6 +24,7 @@ class Game {
     this.eventUpdate = false;
     this.touchStartX;
     this.swipeDistance = 50;
+    this.debug = false;
 
     this.resize(window.innerWidth, window.innerHeight);
 
@@ -37,10 +38,15 @@ class Game {
 
     window.addEventListener('keydown', e => {
       if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
         this.player.flap();
         
       }
       if (e.key === 'Shift' || e.key.toLowerCase() === 'c') this.player.startCharge();
+
+      if (e.key.toLowerCase() === 'd') this.debug = !this.debug;
+      if (e.key.toLowerCase() === 'f') this.canvas.requestFullscreen();
+      if (e.key.toLowerCase() === 'r') location.reload();
     })
 
     this.canvas.addEventListener('touchstart', e => {
@@ -76,7 +82,7 @@ class Game {
     this.player.resize();
     this.createObstacles();
     this.obstacles.forEach(obstacle => obstacle.resize());
-    
+    this.debug = false;
   }
 
   
@@ -191,6 +197,7 @@ window.addEventListener("load", () => {
   });
 
   document.getElementById("debug").addEventListener("click", () => {
+    game.debug = !game.debug;
     game.player.collided = false; 
     console.log("Modo Debug activado");
   });

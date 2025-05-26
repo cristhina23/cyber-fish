@@ -20,14 +20,17 @@ class Player {
     this.barSize;
     this.image = document.getElementById('player');
     this.frameY = 0;
+    
   }
 
   draw() {
   this.game.ctx.drawImage(this.image, 0, this.frameY * this.spriteHeight, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height);
-  this.game.ctx.beginPath();
-  this.game.ctx.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2);
-  this.game.ctx.strokeStyle = 'red';
-  this.game.ctx.stroke();
+  if (this.game.debug) {
+    this.game.ctx.beginPath();
+    this.game.ctx.arc(this.collisionX + this.collisionRadius, this.collisionY, this.collisionRadius, 0, Math.PI * 2);
+    this.game.ctx.strokeStyle = 'red';
+    this.game.ctx.stroke();
+  }
   
 
   }
@@ -66,7 +69,7 @@ class Player {
     this.y = this.game.height * 0.5 - this.height * 0.5;
     this.speedY = -4 * this.game.ratio;
     this.flapSpeed = 5 * this.game.ratio;
-    this.collisionRadius = this.width * 0.3;
+    this.collisionRadius = 50 * this.game.ratio;
     this.collided = false;
     this.barSize = Math.ceil(5 * this.game.ratio);
     this.energy = 20;
