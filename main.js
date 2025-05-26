@@ -8,6 +8,7 @@ class Game {
     this.ratio = this.height / this.baseHeight;
     this.background = new Background(this);
     this.player = new Player(this);
+    this.sound = new AudioControl();
     this.obstacles = [];
     this.numberOfObstacles = 10;
     this.gravity;
@@ -16,9 +17,12 @@ class Game {
     this.maxSpeed;
     this.score = 0;
     this.gameOver = false;
+    this.bottomMargin;
     this.timer = 0;
     this.message1;
     this.message2;
+    this.smallFont;
+    this.largeFont;
     this.eventTimer = 0;
     this.eventInterval = 100;
     this.eventUpdate = false;
@@ -34,6 +38,12 @@ class Game {
 
     window.addEventListener('mousedown', e => {
       this.player.flap();
+    })
+
+    window.addEventListener('mouseup', e => {
+      setTimeout(() => {
+          this.player.wingsUp();
+        }, 100)
     })
 
     window.addEventListener('keydown', e => {
@@ -55,10 +65,17 @@ class Game {
     });
 
     this.canvas.addEventListener('touchmove', e => {
-      if (e.changedTouches[0].pageX - this.touchStartX > 50) {
-        this.player.startCharge();
-      }
+      e.preventDefault();
     });
+
+    this.canvas.addEventListener('touchend', e => {
+      if (e.changedTouches[0].pageX - this.touchStartX > this.swipeDistance) {
+        this.player.startCharge();
+      } else {
+        this.player.flap();
+        
+      }
+    })
     window.addEventListener('keyup', e => {
       this.player.wingsUp();
     })
@@ -67,13 +84,16 @@ class Game {
     this.canvas.width = width;
     this.canvas.height = height;
     this.ctx.fillStyle = "orange";
-    this.ctx.font = "20px Bungee Spice";
     this.ctx.textAlign = "right";
     this.ctx.lineWidth = 3;
     this.ctx.strokeStyle = "white";
     this.width = this.canvas.width;
     this.height = this.canvas.height;
     this.ratio = this.height / this.baseHeight;
+    this.bottomMargin = Math.floor(50 * this.ratio);
+    this.smallFont = Math.ceil(20 * this.ratio);
+    this.largeFont = Math.ceil(40 * this.ratio);
+    this.ctx.font =  this.smallFont + "px Bungee Spice";
     this.gravity = 0.15 * this.ratio;
     this.speed = 3 * this.ratio;
     this.minSpeed = this.speed;
@@ -134,27 +154,35 @@ class Game {
     }
   }
 
-  drawStatusText() {
-    this.ctx.save();
-    this.ctx.fillText("Score: " + this.score, this.width - 20, 40);
-    this.ctx.textAlign = "left";
-    this.ctx.fillText('Timer: ' + this.formatTimer(), 20, 40);
-    if (this.gameOver) {
-      if (this.player.collided) {
-        this.message1 = 'Getting Rusty?';
-        this.message2 = 'Collision time is ' + this.formatTimer() + ' seconds.';
-      } else {
+  triggerGameOver() {
+    if (!this.gameOver) {
+      this.gameOver = true;
+      if ( this.obstacles.length <= 0) {
+        this.sound.play(this.sound.win);
         this.message1 = 'You Won!';
         this.message2 = 'Can you do it faster than ' + this.formatTimer() + ' seconds?';
+      }else {
+        this.sound.play(this.sound.lose);
+         this.message1 = 'Getting Rusty?';
+        this.message2 = 'Collision time is ' + this.formatTimer() + ' seconds.';
       }
-      this.ctx.textAlign = "center";
-      this.ctx.font = "30px Bungee Spice";
-      this.ctx.fillText(this.message1, this.width * 0.5, this.height * 0.5 - 60);
-      this.ctx.font = "20px Bungee Spice";
-      this.ctx.fillText(this.message2, this.width * 0.5, this.height * 0.5 - 30);
-      this.ctx.fillText('Press enter to restart', this.width * 0.5, this.height * 0.5);
     }
-    if (this.player.energy <= 8) {
+  }
+  drawStatusText() {
+    this.ctx.save();
+    this.ctx.fillText("Score: " + this.score, this.width - this.smallFont, this.largeFont);
+    this.ctx.textAlign = "left";
+    this.ctx.fillText('Timer: ' + this.formatTimer(), this.smallFont, this.largeFont);
+    if (this.gameOver) {
+     
+      this.ctx.textAlign = "center";
+      this.ctx.font = this.largeFont + "px Bungee Spice";
+      this.ctx.fillText(this.message1, this.width * 0.5, this.height * 0.5 - 60, this.width);
+      this.ctx.font = this.smallFont + "px Bungee Spice";
+      this.ctx.fillText(this.message2, this.width * 0.5, this.height * 0.5 - 30, this.width);
+      this.ctx.fillText('Press enter to restart', this.width * 0.5, this.height * 0.5, this.width);
+    }
+    if (this.player.energy <= this.player.minEnergy) {
       this.ctx.fillStyle = 'red';
     }
     for (let i = 0; i < this.player.energy; i++) {
@@ -177,7 +205,7 @@ window.addEventListener("load", () => {
   function animate(timeStamp) {
     const deltaTime = timeStamp - lastTime;
     lastTime = timeStamp;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
     game.render(deltaTime);
     requestAnimationFrame(animate);
   }

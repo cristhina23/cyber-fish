@@ -15,7 +15,7 @@ class Player {
     this.collided;
     this.energy = 30;
     this.maxEnergy = this.energy;
-    this.minEnergy = this.energy * 0.5;
+    this.minEnergy = 10;
     this.charging;
     this.barSize;
     this.image = document.getElementById('player');
@@ -53,11 +53,11 @@ class Player {
     }
 
     if (this.isTouchingBottom()) {
-      this.y = this.game.height - this.height;
+      this.y = this.game.height - this.height - this.game.bottomMargin;
       this.wingsCharge(); // ✅ Cambia la imagen al frame 3
       this.stopCharge();
       this.collided = true;
-      this.game.gameOver = true;
+      this.game.triggerGameOver();
       
     }
   }
@@ -70,6 +70,7 @@ class Player {
     this.speedY = -4 * this.game.ratio;
     this.flapSpeed = 5 * this.game.ratio;
     this.collisionRadius = 50 * this.game.ratio;
+    this.collisionX = this.x + this.width * 0.9;
     this.collided = false;
     this.barSize = Math.ceil(5 * this.game.ratio);
     this.energy = 20;
@@ -77,9 +78,14 @@ class Player {
     this.charging = false;
   }
   startCharge() {
-    this.charging = true;
-    this.game.speed = this.game.maxSpeed;
-    this.wingsCharge();
+    if (this.energy >= this.minEnergy && !this.charging) {
+      this.charging = true;
+      this.game.speed = this.game.maxSpeed;
+      this.wingsCharge();
+      this.game.sound.play(this.game.sound.charge);
+    } else {
+      this.stopCharge();
+    }
   }
   stopCharge() {
     this.charging = false;
@@ -103,7 +109,7 @@ class Player {
     this.frameY = 3;
   }
   isTouchingBottom() {
-    return this.y >= this.game.height - this.height;
+    return this.y >= this.game.height - this.height - this.game.bottomMargin;
   }
   isTouchingTop() {
     return this.y <= 0;
@@ -124,9 +130,12 @@ class Player {
   }
   flap() {
     this.stopCharge();
+     
     if (!this.isTouchingBottom()) {
        this.speedY = -this.flapSpeed;
+       this.game.sound.play(this.game.sound.flapSounds[Math.floor(Math.random() * 3  )]); 
        this.wingsDown();
+       
     }
    
   }
