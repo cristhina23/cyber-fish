@@ -231,3 +231,5 @@ window.addEventListener("load", () => {
   });
 
 })
+
+//https://www.youtube.com/watch?v=HS6KHYIYdXc&list=PLa_ZR4i2jTGPQFb-SMunc8aSmXI5GbmuY&index=14&t=68s
